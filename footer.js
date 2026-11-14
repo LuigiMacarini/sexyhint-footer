@@ -38,6 +38,7 @@
   };
 
   var CONTENT = {
+    faixa: "Sexy Your Way", // barra preta fina no topo do footer ("" = sem barra)
     logo: {
       src: BASE_URL + "/logo.png",
       alt: "SexyHint"
@@ -111,10 +112,12 @@
   var CSS =
     ".sh-footer{--sh-red:#d6201f;--sh-text:#111;--sh-line:#d9d9d9;" +
     "font-family:'Manrope','Montserrat',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;" +
-    "color:var(--sh-text);background:#fff;padding:56px 24px;box-sizing:border-box}" +
+    "color:var(--sh-text);background:#fff;padding:0;margin:0;box-sizing:border-box}" +
     ".sh-footer *{box-sizing:border-box}" +
     ".sh-footer [hidden]{display:none!important}" +
-    ".sh-footer__inner{max-width:1200px;margin:0 auto;display:grid;" +
+    ".sh-footer__faixa{background:#000;color:#fff;text-align:center;margin:0;" +
+    "padding:10px 16px;font-size:14px;line-height:1.3;letter-spacing:.08em}" +
+    ".sh-footer__inner{max-width:1248px;margin:0 auto;padding:56px 24px;display:grid;" +
     "grid-template-columns:minmax(260px,1.3fr) 1fr 1fr 1fr;gap:0 40px}" +
     ".sh-footer__brand{padding-right:48px;border-right:1px solid var(--sh-line);text-align:center}" +
     ".sh-footer__brand img{max-width:200px;height:auto;margin:0 auto 20px;display:block}" +
@@ -145,7 +148,9 @@
   }
 
   function montarHTML(contexto) {
-    var html = '<footer class="sh-footer"><div class="sh-footer__inner">';
+    var html = '<footer class="sh-footer">';
+    if (CONTENT.faixa) html += '<p class="sh-footer__faixa">' + esc(CONTENT.faixa) + "</p>";
+    html += '<div class="sh-footer__inner">';
 
     html +=
       '<div class="sh-footer__brand">' +
