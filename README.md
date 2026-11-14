@@ -28,4 +28,14 @@ Footer compartilhado entre o **Zoho Sites** e o **Zoho Commerce**, hospedado no 
 3. Em ~1–10 min o GitHub Pages publica e os dois sites passam a mostrar a versão nova
    (o GitHub Pages usa cache de 10 min; use Ctrl+Shift+R para forçar).
 
-Links com `only: "store"` aparecem só na loja.
+## Qual menu aparece em cada domínio
+
+O script detecta o domínio da página (lista `DOMINIOS` em `footer.js`):
+
+| Domínio | Menu |
+|---|---|
+| sexyhintwholesale.zohosites.com | **site**: About Us, Contact Us, Wholesale FAQ, Shipping & Returns, Privacy Policy + Wholesale Application |
+| sexyhintwholesale.zohoecommerce.com | **store**: Retail Store, Product Catalog, Contact Us |
+
+"About SexyHint" (endereços) aparece nos dois. Em outros domínios (editor do Zoho, teste local)
+vale o `data-context` do `<div>`. Links com `url: ""` ficam escondidos até serem preenchidos.

@@ -12,9 +12,14 @@
  *     <div id="sh-footer" data-context="store"></div>
  *     <script src="https://luigimacarini.github.io/sexyhint-footer/footer.js" defer></script>
  *
- * Itens marcados com  only: "store"  só aparecem na loja.
- * Se data-context estiver ausente ou errado, o footer assume "site"
- * (ou seja, na dúvida, esconde o que é exclusivo da loja).
+ * QUAL MENU APARECE:
+ *   O script olha o domínio da página (lista DOMINIOS abaixo):
+ *     sexyhintwholesale.zohosites.com     -> menu do SITE
+ *     sexyhintwholesale.zohoecommerce.com -> menu da LOJA
+ *   Em outro domínio (editor/preview do Zoho, teste local), usa o data-context.
+ *   Se nada bater, assume "site".
+ *
+ * Links com url vazia ("") NÃO aparecem — preencha quando a página existir.
  */
 (function () {
   "use strict";
@@ -23,8 +28,14 @@
    * 1. CONTEÚDO — edite só esta parte para atualizar os dois sites
    * ============================================================ */
   var BASE_URL = "https://luigimacarini.github.io/sexyhint-footer"; // onde este arquivo está hospedado
-  var SITE_URL = "https://www.SEU-SITE.com";   // TODO: domínio do Zoho Sites
-  var STORE_URL = "https://loja.SEU-SITE.com"; // TODO: domínio do Zoho Commerce
+  var SITE_URL = "https://sexyhintwholesale.zohosites.com";     // Zoho Sites (aberto)
+  var STORE_URL = "https://sexyhintwholesale.zohoecommerce.com"; // Zoho Commerce (privado)
+
+  // Domínio -> qual menu mostrar. Se trocar para domínio próprio, adicione aqui.
+  var DOMINIOS = {
+    "sexyhintwholesale.zohosites.com": "site",
+    "sexyhintwholesale.zohoecommerce.com": "store"
+  };
 
   var CONTENT = {
     logo: {
@@ -35,26 +46,34 @@
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
       "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
 
-    colunas: [
+    // Menu do SITE (Zoho Sites — aberto ao público)
+    site: [
       {
         titulo: "Information",
         links: [
-          { texto: "About Us", url: SITE_URL + "/about-us" },
-          { texto: "Contact Us", url: SITE_URL + "/contact-us" },
-          { texto: "Wholesale FAQ", url: SITE_URL + "/wholesale-faq" },
-          { texto: "Shipping & Returns", url: SITE_URL + "/shipping-returns" },
-          { texto: "Privacy Policy", url: SITE_URL + "/privacy-policy" }
+          { texto: "About Us", url: SITE_URL + "/about" },
+          { texto: "Contact Us", url: SITE_URL + "/contact" },
+          { texto: "Wholesale FAQ", url: "" },      // TODO: link da página
+          { texto: "Shipping & Returns", url: "" }, // TODO: link da página
+          { texto: "Privacy Policy", url: "" }      // TODO: link da página
         ]
       },
       {
         titulo: "Wholesale",
         links: [
-          { texto: "Wholesale Application", url: SITE_URL + "/wholesale-application" },
-          {
-            texto: "Wholesale Terms & Conditions",
-            url: STORE_URL + "/wholesale-terms-and-conditions",
-            only: "store" // <- trava: some no site, aparece só na loja
-          }
+          { texto: "Wholesale Application", url: "" } // TODO: link da página
+        ]
+      }
+    ],
+
+    // Menu da LOJA (Zoho Commerce — só e-mails autorizados)
+    store: [
+      {
+        titulo: "Information",
+        links: [
+          { texto: "Retail Store", url: STORE_URL + "/" },
+          { texto: "Product Catalog", url: STORE_URL + "/product-catalog" },
+          { texto: "Contact Us", url: STORE_URL + "/contact-us" }
         ]
       }
     ],
@@ -108,10 +127,6 @@
       .replace(/"/g, "&quot;");
   }
 
-  function visivel(item, contexto) {
-    return !item.only || item.only === contexto;
-  }
-
   function montarHTML(contexto) {
     var html = '<footer class="sh-footer"><div class="sh-footer__inner">';
 
@@ -120,8 +135,8 @@
       '<img src="' + esc(CONTENT.logo.src) + '" alt="' + esc(CONTENT.logo.alt) + '" loading="lazy">' +
       "<p>" + esc(CONTENT.descricao) + "</p></div>";
 
-    CONTENT.colunas.forEach(function (col) {
-      var links = col.links.filter(function (l) { return visivel(l, contexto); });
+    CONTENT[contexto].forEach(function (col) {
+      var links = col.links.filter(function (l) { return !!l.url; });
       if (!links.length) return;
       html += '<div class="sh-footer__col"><h4>' + esc(col.titulo) + "</h4><ul>";
       links.forEach(function (l) {
@@ -146,13 +161,20 @@
     (document.head || document.documentElement).appendChild(style);
   }
 
+  // 1º domínio da página; 2º data-context do <div>; senão "site".
+  function detectarContexto(alvo) {
+    var host = String(location.hostname || "").toLowerCase().replace(/^www\./, "");
+    if (DOMINIOS[host]) return DOMINIOS[host];
+    var ctx = (alvo.getAttribute("data-context") || "").toLowerCase();
+    return ctx === "store" ? "store" : "site";
+  }
+
   // Renderiza no alvo. Retorna true se encontrou o <div id="sh-footer">.
   function render() {
     var alvo = document.getElementById("sh-footer");
     if (!alvo) return false;
     if (alvo.getAttribute("data-sh-rendered") === "1") return true; // evita montar 2x
-    var ctx = (alvo.getAttribute("data-context") || "").toLowerCase();
-    var contexto = ctx === "store" ? "store" : "site"; // padrão seguro = site
+    var contexto = detectarContexto(alvo);
     injetarCSS();
     alvo.innerHTML = montarHTML(contexto);
     alvo.setAttribute("data-sh-rendered", "1");
