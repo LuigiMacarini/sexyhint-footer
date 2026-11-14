@@ -48,8 +48,10 @@
       alt: "SexyHint"
     },
     descricao:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
+      "SexyHint brings distinctive wholesale lingerie to U.S. boutiques and adult stores. " +
+      "We focus on quality, fresh styles, and select exclusive designs, with inventory based " +
+      "in Florida for convenient domestic fulfillment. Discover a brand committed to helping " +
+      "your store stand out and drive sales.",
 
     // Menu do SITE (Zoho Sites — aberto ao público)
     site: [
