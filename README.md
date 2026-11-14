@@ -43,3 +43,8 @@ com o login do visitante. Só aparece se a página real abrir. Quem controla o a
 
 "About SexyHint" (endereços) aparece nos dois. Em outros domínios (editor do Zoho, teste local)
 vale o `data-context` do `<div>`. Links com `url: ""` ficam escondidos até serem preenchidos.
+
+## Marca d'água do Zoho
+
+Se a faixa "Powered by Zoho …" aparecer antes do footer (ex.: preview do Commerce), o script move
+o footer para logo acima dela. A marca d'água em si não é alterada nem escondida.

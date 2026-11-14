@@ -226,12 +226,45 @@
     });
   }
 
-  // O Zoho às vezes insere os blocos de código depois que o script já rodou.
-  // Se o alvo ainda não existir, observa a página por até 15s até ele aparecer.
+  // Acha a faixa "Powered by Zoho ..." (marca d'água do plano).
+  function acharMarcaDagua(alvo) {
+    var links = document.querySelectorAll('a[href*="footer-banner"]');
+    for (var i = 0; i < links.length; i++) {
+      if (!alvo.contains(links[i])) return links[i];
+    }
+    // plano B: um dos últimos blocos da página com "Powered by ... Zoho"
+    var filhos = document.body ? document.body.children : [];
+    for (var j = filhos.length - 1, k = 0; j >= 0 && k < 15; j--, k++) {
+      var el = filhos[j];
+      if (el === alvo || el.contains(alvo)) continue;
+      var txt = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (txt.length < 80 && /powered by/i.test(txt) && /zoho/i.test(txt + el.innerHTML)) return el;
+    }
+    return null;
+  }
+
+  // Garante a ordem: conteúdo -> NOSSO FOOTER -> marca d'água do Zoho.
+  function ajustarPosicao() {
+    var alvo = document.getElementById("sh-footer");
+    var marca = alvo && acharMarcaDagua(alvo);
+    if (!marca) return;
+    if (alvo.compareDocumentPosition(marca) & 4) return; // marca já está depois
+    var n = marca; // sobe até o bloco da marca que fica "ao lado" do nosso footer
+    while (n.parentNode && n.parentNode !== document.body && !n.parentNode.contains(alvo)) {
+      n = n.parentNode;
+    }
+    if (n.parentNode) n.parentNode.insertBefore(alvo, n);
+  }
+
+  // O Zoho às vezes insere os blocos de código (e a marca d'água) depois que o
+  // script já rodou. Por isso observa a página por até 15s.
   function iniciar() {
-    if (render() || !window.MutationObserver) return;
+    var pronto = render();
+    if (pronto) ajustarPosicao();
+    if (!window.MutationObserver) return;
     var obs = new MutationObserver(function () {
-      if (render()) obs.disconnect();
+      if (!pronto) pronto = render();
+      if (pronto) ajustarPosicao();
     });
     obs.observe(document.documentElement, { childList: true, subtree: true });
     setTimeout(function () { obs.disconnect(); }, 15000);
