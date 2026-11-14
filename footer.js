@@ -51,17 +51,17 @@
       {
         titulo: "Information",
         links: [
-          { texto: "About Us", url: SITE_URL + "/about" },
+          { texto: "About Us", url: "" }, // TODO: /about ainda dá 404 — preencher quando a página for publicada
           { texto: "Contact Us", url: SITE_URL + "/contact" },
-          { texto: "Wholesale FAQ", url: "" },      // TODO: link da página
+          { texto: "Wholesale FAQ", url: STORE_URL + "/wholesale-faq" },
           { texto: "Shipping & Returns", url: "" }, // TODO: link da página
-          { texto: "Privacy Policy", url: "" }      // TODO: link da página
+          { texto: "Privacy Policy", url: STORE_URL + "/privacy-policy" }
         ]
       },
       {
         titulo: "Wholesale",
         links: [
-          { texto: "Wholesale Application", url: "" } // TODO: link da página
+          { texto: "Wholesale Application", url: SITE_URL + "/wholesale_application" }
         ]
       }
     ],
