@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SexyHint Footer — teste</title>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #f4f4f4; }
+    .bar { padding: 16px 24px; background: #222; color: #fff; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .bar a { color: #ffb3b3; }
+    .fake-page { min-height: 50vh; padding: 24px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <strong>Pré-visualização do footer</strong>
+    <a href="?context=site">Ver como SITE</a>
+    <a href="?context=store">Ver como LOJA</a>
+    <span id="ctx-label"></span>
+  </div>
+  <div class="fake-page">Conteúdo da página…</div>
+
+  <div id="sh-footer" data-context="site"></div>
+  <script>
+    // Permite testar os dois contextos via ?context=site / ?context=store
+    var ctx = new URLSearchParams(location.search).get("context") === "store" ? "store" : "site";
+    document.getElementById("sh-footer").setAttribute("data-context", ctx);
+    document.getElementById("ctx-label").textContent = "Contexto atual: " + ctx;
+  </script>
+  <script src="footer.js" defer></script>
+</body>
+</html>
