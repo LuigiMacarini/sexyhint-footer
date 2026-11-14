@@ -51,10 +51,10 @@
       {
         titulo: "Information",
         links: [
-          { texto: "About Us", url: "" }, // TODO: /about ainda dá 404 — preencher quando a página for publicada
+          { texto: "About Us", url: STORE_URL + "/about-us" },
           { texto: "Contact Us", url: SITE_URL + "/contact" },
           { texto: "Wholesale FAQ", url: STORE_URL + "/wholesale-faq" },
-          { texto: "Shipping & Returns", url: "" }, // TODO: link da página
+          { texto: "Shipping & Returns", url: STORE_URL + "/shipping-returns-1" },
           { texto: "Privacy Policy", url: STORE_URL + "/privacy-policy" }
         ]
       },
@@ -71,9 +71,25 @@
       {
         titulo: "Information",
         links: [
-          { texto: "Retail Store", url: STORE_URL + "/" },
-          { texto: "Product Catalog", url: STORE_URL + "/product-catalog" },
-          { texto: "Contact Us", url: STORE_URL + "/contact-us" }
+          { texto: "About Us", url: STORE_URL + "/about-us" },
+          { texto: "Contact Us", url: STORE_URL + "/contact-us" },
+          { texto: "Wholesale FAQ", url: STORE_URL + "/wholesale-faq" },
+          { texto: "Shipping & Returns", url: STORE_URL + "/shipping-returns-1" },
+          { texto: "Privacy Policy", url: STORE_URL + "/privacy-policy" }
+        ]
+      },
+      {
+        titulo: "Wholesale",
+        links: [
+          { texto: "Wholesale Application", url: STORE_URL + "/wholesale-application" },
+          {
+            texto: "Wholesale Terms & Conditions",
+            url: STORE_URL + "/wholesale-terms-conditions",
+            // Só aparece se o visitante CONSEGUIR abrir esta página.
+            // O footer testa em segundo plano; quem decide o acesso é o Zoho
+            // (página restrita a clientes logados/aprovados).
+            soComAcesso: { titulo: "Wholesale Terms" } // texto que o <title> da página real contém
+          }
         ]
       }
     ],
@@ -97,6 +113,7 @@
     "font-family:'Manrope','Montserrat',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;" +
     "color:var(--sh-text);background:#fff;padding:56px 24px;box-sizing:border-box}" +
     ".sh-footer *{box-sizing:border-box}" +
+    ".sh-footer [hidden]{display:none!important}" +
     ".sh-footer__inner{max-width:1200px;margin:0 auto;display:grid;" +
     "grid-template-columns:minmax(260px,1.3fr) 1fr 1fr 1fr;gap:0 40px}" +
     ".sh-footer__brand{padding-right:48px;border-right:1px solid var(--sh-line);text-align:center}" +
@@ -140,7 +157,10 @@
       if (!links.length) return;
       html += '<div class="sh-footer__col"><h4>' + esc(col.titulo) + "</h4><ul>";
       links.forEach(function (l) {
-        html += '<li><a href="' + esc(l.url) + '">' + esc(l.texto) + "</a></li>";
+        var restrito = l.soComAcesso
+          ? ' hidden data-sh-acesso="' + esc(l.soComAcesso.titulo) + '"'
+          : "";
+        html += "<li" + restrito + '><a href="' + esc(l.url) + '">' + esc(l.texto) + "</a></li>";
       });
       html += "</ul></div>";
     });
@@ -178,7 +198,32 @@
     injetarCSS();
     alvo.innerHTML = montarHTML(contexto);
     alvo.setAttribute("data-sh-rendered", "1");
+    liberarRestritos(alvo);
     return true;
+  }
+
+  // Links restritos começam escondidos. Pede a página com os cookies do
+  // visitante: se vier a página de verdade (não login/erro), mostra o link.
+  function liberarRestritos(alvo) {
+    if (!window.fetch) return;
+    var itens = alvo.querySelectorAll("li[data-sh-acesso]");
+    Array.prototype.forEach.call(itens, function (li) {
+      var a = li.querySelector("a");
+      var url = a && a.href;
+      // só dá pra testar no mesmo domínio (cookies de login são da loja)
+      if (!url || url.indexOf(location.origin + "/") !== 0) return;
+      var esperado = li.getAttribute("data-sh-acesso").toLowerCase();
+      fetch(url, { credentials: "same-origin", cache: "no-store" })
+        .then(function (res) {
+          if (!res.ok || res.redirected) return "";
+          return res.text();
+        })
+        .then(function (html) {
+          var m = /<title[^>]*>([^<]*)/i.exec(html || "");
+          if (m && m[1].toLowerCase().indexOf(esperado) !== -1) li.hidden = false;
+        })
+        .catch(function () { /* sem acesso / offline: continua escondido */ });
+    });
   }
 
   // O Zoho às vezes insere os blocos de código depois que o script já rodou.

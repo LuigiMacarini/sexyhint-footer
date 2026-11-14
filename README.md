@@ -35,7 +35,11 @@ O script detecta o domínio da página (lista `DOMINIOS` em `footer.js`):
 | Domínio | Menu |
 |---|---|
 | sexyhintwholesale.zohosites.com | **site**: About Us, Contact Us, Wholesale FAQ, Shipping & Returns, Privacy Policy + Wholesale Application |
-| sexyhintwholesale.zohoecommerce.com | **store**: Retail Store, Product Catalog, Contact Us |
+| sexyhintwholesale.zohoecommerce.com | **store**: os mesmos itens (todos apontando para páginas da loja) + Wholesale Terms & Conditions |
+
+**Wholesale Terms & Conditions** usa `soComAcesso`: começa escondido e o footer tenta abrir a página
+com o login do visitante. Só aparece se a página real abrir. Quem controla o acesso é o Zoho Commerce
+(a página precisa estar restrita lá).
 
 "About SexyHint" (endereços) aparece nos dois. Em outros domínios (editor do Zoho, teste local)
 vale o `data-context` do `<div>`. Links com `url: ""` ficam escondidos até serem preenchidos.
