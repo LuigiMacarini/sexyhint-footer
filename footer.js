@@ -37,6 +37,10 @@
     "sexyhintwholesale.zohoecommerce.com": "store"
   };
 
+  // Esconder o footer nativo do builder do Zoho (o nosso substitui)?
+  // A marca d'água "Powered by Zoho" nunca é escondida.
+  var ESCONDER_FOOTER_ZOHO = { site: false, store: true };
+
   var CONTENT = {
     faixa: "Sexy Your Way", // barra preta fina no topo do footer ("" = sem barra)
     logo: {
@@ -248,9 +252,34 @@
     return null;
   }
 
+  // Esconde as seções do footer nativo do Zoho (Commerce: data-footer-type="site_footer";
+  // Sites: <footer data-container-name="footer">), menos o que tiver a marca d'água.
+  function esconderFooterZoho(alvo) {
+    if (!ESCONDER_FOOTER_ZOHO[detectarContexto(alvo)]) return;
+    var areas = document.querySelectorAll(
+      '[data-footer-type="site_footer"], footer[data-container-name="footer"]'
+    );
+    Array.prototype.forEach.call(areas, function (area) {
+      if (area.contains(alvo)) return;
+      var secoes = area.querySelectorAll('[data-element-type="section"]');
+      Array.prototype.forEach.call(secoes, function (sec) {
+        if (sec.contains(alvo) || sec.querySelector('a[href*="footer-banner"]')) return;
+        if (/powered by/i.test(sec.textContent || "")) return;
+        sec.style.setProperty("display", "none", "important");
+      });
+      // área do tema (fundo escuro) vazia: some também, se não tiver a marca d'água
+      var tema = area.closest && area.closest(".theme-footer-area");
+      if (tema && !tema.contains(alvo) && !tema.querySelector('a[href*="footer-banner"]') &&
+          !/powered by/i.test(tema.textContent || "")) {
+        tema.style.setProperty("display", "none", "important");
+      }
+    });
+  }
+
   // Garante a ordem: conteúdo -> NOSSO FOOTER -> marca d'água do Zoho.
   function ajustarPosicao() {
     var alvo = document.getElementById("sh-footer");
+    if (alvo) esconderFooterZoho(alvo);
     var marca = alvo && acharMarcaDagua(alvo);
     if (!marca) return;
     if (alvo.compareDocumentPosition(marca) & 4) return; // marca já está depois
